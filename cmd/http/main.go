@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -31,9 +34,14 @@ type ContentItem struct {
 func main() {
 	r := gin.Default()
 
+	serverPort := os.Getenv("SERVER_PORT")
+	if serverPort == "" {
+		log.Fatalln("SERVER_PORT environment variable is required")
+	}
+
 	r.POST("/content", Get)
 
-	r.Run() // listen and serve on 0.0.0.0:8080 by default
+	log.Fatalln(r.Run(fmt.Sprintf(":%s", serverPort))) // listen and serve on 0.0.0.0:8080 by default
 }
 
 func Get(c *gin.Context) {
