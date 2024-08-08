@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 // ContentItemCreateParams is the struct that represents the request body for creating a content item
@@ -32,16 +32,16 @@ type ContentItem struct {
 }
 
 func main() {
-	r := gin.Default()
-
-	serverPort := os.Getenv("SERVER_PORT")
-	if serverPort == "" {
-		log.Fatalln("SERVER_PORT environment variable is required")
+	config, err := LoadConfig()
+	if err != nil {
+		log.Fatalf("error loading config: %s", err.Error())
 	}
+
+	r := gin.Default()
 
 	r.POST("/content", Get)
 
-	log.Fatalln(r.Run(fmt.Sprintf(":%s", serverPort))) // listen and serve on 0.0.0.0:8080 by default
+	log.Fatalln(r.Run(fmt.Sprintf(":%s", config.ServerPort))) // listen and serve on 0.0.0.0:8080 by default
 }
 
 func Get(c *gin.Context) {
@@ -63,4 +63,29 @@ func Get(c *gin.Context) {
 	// Todo: Save contentItem to database
 
 	c.JSON(200, contentItem)
+}
+
+type EnvVars struct {
+	ServerPort string `mapstructure:"SERVER_PORT"`
+}
+
+func LoadConfig() (config EnvVars, err error) {
+
+	viper.AddConfigPath("../../.")
+	viper.AddConfigPath(".")
+	viper.SetConfigType("env")
+	viper.SetConfigName("app")
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		return config, fmt.Errorf("error reading config file: %w", err)
+	}
+
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		return config, fmt.Errorf("error unmarshalling config: %w", err)
+	}
+
+	return config, nil
+
 }

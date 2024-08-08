@@ -22,7 +22,7 @@ go.work
 go.work.sum
 
 # env file
-.env
+app.env
 
 # ignore .idea folder
 .idea/
