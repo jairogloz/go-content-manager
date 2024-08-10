@@ -8,32 +8,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jairogloz/go-content-manager/pkg/domain"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
-
-// ContentItemCreateParams is the struct that represents the request body for creating a content item
-type ContentItemCreateParams struct {
-	Category    string `json:"category"`
-	Description string `json:"description"`
-	Title       string `json:"title"`
-}
-
-// ContentItem reflects a content item in the system.
-type ContentItem struct {
-	Category              string     `json:"category"`
-	CreatedAt             *time.Time `json:"created_at"`
-	Description           string     `json:"description"`
-	PublishedAtBlog       *time.Time `json:"published_at_blog"`
-	PublishedAtLinkedIn   *time.Time `json:"published_at_linkedin"`
-	PublishedAtNewsletter *time.Time `json:"published_at_newsletter"`
-	PublishedAtYoutube    *time.Time `json:"published_at_youtube"`
-	Title                 string     `json:"title"`
-	UpdatedAt             *time.Time `json:"updated_at"`
-	UserID                string     `json:"-"`
-}
 
 var config EnvVars
 
@@ -53,7 +33,7 @@ func main() {
 
 func Create(c *gin.Context) {
 	// Traducir request
-	var contentItemCreateParams ContentItemCreateParams
+	var contentItemCreateParams domain.ContentItemCreateParams
 	if err := c.ShouldBindJSON(&contentItemCreateParams); err != nil {
 		log.Println("Failed to bind JSON: ", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -71,10 +51,10 @@ func Create(c *gin.Context) {
 	c.JSON(200, contentItem)
 }
 
-func CreateContentItem(contentItemCreateParams ContentItemCreateParams) (contentItem *ContentItem, err error) {
+func CreateContentItem(contentItemCreateParams domain.ContentItemCreateParams) (contentItem *domain.ContentItem, err error) {
 
 	now := time.Now().UTC()
-	contentItem = &ContentItem{
+	contentItem = &domain.ContentItem{
 		Category:    contentItemCreateParams.Category,
 		Description: contentItemCreateParams.Description,
 		Title:       contentItemCreateParams.Title,
@@ -90,7 +70,7 @@ func CreateContentItem(contentItemCreateParams ContentItemCreateParams) (content
 	return contentItem, nil
 }
 
-func InsertContentItem(contentItem *ContentItem) error {
+func InsertContentItem(contentItem *domain.ContentItem) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
