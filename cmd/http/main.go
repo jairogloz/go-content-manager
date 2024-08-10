@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jairogloz/go-content-manager/pkg/domain"
-	"github.com/jairogloz/go-content-manager/pkg/repositories/content_item"
+	"github.com/jairogloz/go-content-manager/pkg/services/content_item"
 	"github.com/spf13/viper"
 )
 
@@ -38,7 +37,7 @@ func Create(c *gin.Context) {
 	}
 
 	// Consumir servicio
-	contentItem, err := CreateContentItem(contentItemCreateParams, config)
+	contentItem, err := content_item.CreateContentItem(contentItemCreateParams, config)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -46,25 +45,6 @@ func Create(c *gin.Context) {
 
 	// Traducir respuesta
 	c.JSON(200, contentItem)
-}
-
-func CreateContentItem(contentItemCreateParams domain.ContentItemCreateParams, config domain.EnvVars) (contentItem *domain.ContentItem, err error) {
-
-	now := time.Now().UTC()
-	contentItem = &domain.ContentItem{
-		Category:    contentItemCreateParams.Category,
-		Description: contentItemCreateParams.Description,
-		Title:       contentItemCreateParams.Title,
-		CreatedAt:   &now,
-		UpdatedAt:   &now,
-	}
-
-	err = content_item.InsertContentItem(contentItem, config)
-	if err != nil {
-		return nil, fmt.Errorf("error inserting content item: %w", err)
-	}
-
-	return contentItem, nil
 }
 
 func LoadConfig() (config domain.EnvVars, err error) {
