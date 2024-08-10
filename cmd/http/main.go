@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,13 +8,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jairogloz/go-content-manager/pkg/domain"
+	"github.com/jairogloz/go-content-manager/pkg/repositories/content_item"
 	"github.com/spf13/viper"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var config EnvVars
+var config domain.EnvVars
 
 func main() {
 	var err error
@@ -41,7 +38,7 @@ func Create(c *gin.Context) {
 	}
 
 	// Consumir servicio
-	contentItem, err := CreateContentItem(contentItemCreateParams)
+	contentItem, err := CreateContentItem(contentItemCreateParams, config)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -51,7 +48,7 @@ func Create(c *gin.Context) {
 	c.JSON(200, contentItem)
 }
 
-func CreateContentItem(contentItemCreateParams domain.ContentItemCreateParams) (contentItem *domain.ContentItem, err error) {
+func CreateContentItem(contentItemCreateParams domain.ContentItemCreateParams, config domain.EnvVars) (contentItem *domain.ContentItem, err error) {
 
 	now := time.Now().UTC()
 	contentItem = &domain.ContentItem{
@@ -62,7 +59,7 @@ func CreateContentItem(contentItemCreateParams domain.ContentItemCreateParams) (
 		UpdatedAt:   &now,
 	}
 
-	err = InsertContentItem(contentItem)
+	err = content_item.InsertContentItem(contentItem, config)
 	if err != nil {
 		return nil, fmt.Errorf("error inserting content item: %w", err)
 	}
@@ -70,44 +67,7 @@ func CreateContentItem(contentItemCreateParams domain.ContentItemCreateParams) (
 	return contentItem, nil
 }
 
-func InsertContentItem(contentItem *domain.ContentItem) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	clientOptions := options.Client().ApplyURI(config.MongoDBURI)
-	client, err := mongo.Connect(ctx, clientOptions)
-	if err != nil {
-		log.Println("Failed to connect to MongoDB: ", err.Error())
-		return fmt.Errorf("error connecting to MongoDB: %w", err)
-	}
-
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatalf("Failed to ping MongoDB: %v", err)
-		return fmt.Errorf("error pinging MongoDB: %w", err)
-	}
-
-	collection := client.Database(config.MongoDBName).Collection(config.MongoDBCollNameContentItems)
-
-	ctx, cancel = context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-	_, err = collection.InsertOne(ctx, contentItem)
-	if err != nil {
-		log.Println("Failed to insert contentItem to MongoDB: ", err.Error())
-		return fmt.Errorf("error inserting contentItem to MongoDB: %w", err)
-	}
-
-	return nil
-}
-
-type EnvVars struct {
-	MongoDBCollNameContentItems string `mapstructure:"MONGO_DB_COLL_NAME_CONTENT_ITEMS"`
-	MongoDBName                 string `mapstructure:"MONGO_DB_NAME"`
-	MongoDBURI                  string `mapstructure:"MONGO_DB_URI"`
-	ServerPort                  string `mapstructure:"SERVER_PORT"`
-}
-
-func LoadConfig() (config EnvVars, err error) {
+func LoadConfig() (config domain.EnvVars, err error) {
 
 	viper.AddConfigPath("../../.")
 	viper.AddConfigPath(".")
