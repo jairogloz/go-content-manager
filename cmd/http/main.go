@@ -72,7 +72,7 @@ func Create(c *gin.Context) {
 }
 
 func CreateContentItem(contentItemCreateParams ContentItemCreateParams) (contentItem *ContentItem, err error) {
-	// ============= Capa servicio ================
+
 	now := time.Now().UTC()
 	contentItem = &ContentItem{
 		Category:    contentItemCreateParams.Category,
@@ -81,9 +81,16 @@ func CreateContentItem(contentItemCreateParams ContentItemCreateParams) (content
 		CreatedAt:   &now,
 		UpdatedAt:   &now,
 	}
-	// ============= Capa servicio ================
 
-	// =================== Capa repositorio ===================
+	err = InsertContentItem(contentItem)
+	if err != nil {
+		return nil, fmt.Errorf("error inserting content item: %w", err)
+	}
+
+	return contentItem, nil
+}
+
+func InsertContentItem(contentItem *ContentItem) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -91,13 +98,13 @@ func CreateContentItem(contentItemCreateParams ContentItemCreateParams) (content
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Println("Failed to connect to MongoDB: ", err.Error())
-		return nil, fmt.Errorf("error connecting to MongoDB: %w", err)
+		return fmt.Errorf("error connecting to MongoDB: %w", err)
 	}
 
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Fatalf("Failed to ping MongoDB: %v", err)
-		return nil, fmt.Errorf("error pinging MongoDB: %w", err)
+		return fmt.Errorf("error pinging MongoDB: %w", err)
 	}
 
 	collection := client.Database(config.MongoDBName).Collection(config.MongoDBCollNameContentItems)
@@ -107,11 +114,10 @@ func CreateContentItem(contentItemCreateParams ContentItemCreateParams) (content
 	_, err = collection.InsertOne(ctx, contentItem)
 	if err != nil {
 		log.Println("Failed to insert contentItem to MongoDB: ", err.Error())
-		return nil, fmt.Errorf("error inserting contentItem to MongoDB: %w", err)
+		return fmt.Errorf("error inserting contentItem to MongoDB: %w", err)
 	}
-	// =================== Capa repositorio ===================
 
-	return contentItem, nil
+	return nil
 }
 
 type EnvVars struct {
