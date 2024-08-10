@@ -26,3 +26,5 @@ app.env
 
 # ignore .idea folder
 .idea/
+
+.DS_Store

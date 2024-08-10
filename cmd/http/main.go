@@ -52,22 +52,38 @@ func main() {
 }
 
 func Create(c *gin.Context) {
+	// Traducir request
 	var contentItemCreateParams ContentItemCreateParams
 	if err := c.ShouldBindJSON(&contentItemCreateParams); err != nil {
+		log.Println("Failed to bind JSON: ", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Consumir servicio
+	contentItem, err := CreateContentItem(contentItemCreateParams)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Traducir respuesta
+	c.JSON(200, contentItem)
+}
+
+func CreateContentItem(contentItemCreateParams ContentItemCreateParams) (contentItem *ContentItem, err error) {
+	// ============= Capa servicio ================
 	now := time.Now().UTC()
-	contentItem := ContentItem{
+	contentItem = &ContentItem{
 		Category:    contentItemCreateParams.Category,
 		Description: contentItemCreateParams.Description,
 		Title:       contentItemCreateParams.Title,
 		CreatedAt:   &now,
 		UpdatedAt:   &now,
 	}
+	// ============= Capa servicio ================
 
-	// =================== Save contentItem to database ===================
+	// =================== Capa repositorio ===================
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -75,12 +91,13 @@ func Create(c *gin.Context) {
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Println("Failed to connect to MongoDB: ", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal_server_error"})
+		return nil, fmt.Errorf("error connecting to MongoDB: %w", err)
 	}
 
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Fatalf("Failed to ping MongoDB: %v", err)
+		return nil, fmt.Errorf("error pinging MongoDB: %w", err)
 	}
 
 	collection := client.Database(config.MongoDBName).Collection(config.MongoDBCollNameContentItems)
@@ -90,11 +107,11 @@ func Create(c *gin.Context) {
 	_, err = collection.InsertOne(ctx, contentItem)
 	if err != nil {
 		log.Println("Failed to insert contentItem to MongoDB: ", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal_server_error"})
+		return nil, fmt.Errorf("error inserting contentItem to MongoDB: %w", err)
 	}
-	// =================== Save contentItem to database ===================
+	// =================== Capa repositorio ===================
 
-	c.JSON(200, contentItem)
+	return contentItem, nil
 }
 
 type EnvVars struct {
