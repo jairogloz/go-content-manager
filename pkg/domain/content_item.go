@@ -11,14 +11,15 @@ type ContentItemCreateParams struct {
 
 // ContentItem reflects a content item in the system.
 type ContentItem struct {
-	Category              string     `json:"category"`
-	CreatedAt             *time.Time `json:"created_at"`
-	Description           string     `json:"description"`
-	PublishedAtBlog       *time.Time `json:"published_at_blog"`
-	PublishedAtLinkedIn   *time.Time `json:"published_at_linkedin"`
-	PublishedAtNewsletter *time.Time `json:"published_at_newsletter"`
-	PublishedAtYoutube    *time.Time `json:"published_at_youtube"`
-	Title                 string     `json:"title"`
-	UpdatedAt             *time.Time `json:"updated_at"`
-	UserID                string     `json:"-"`
+	ID                    string     `json:"id" bson:"_id"`
+	Category              string     `json:"category" bson:"category"`
+	CreatedAt             *time.Time `json:"created_at" bson:"created_at"`
+	Description           string     `json:"description" bson:"description"`
+	PublishedAtBlog       *time.Time `json:"published_at_blog" bson:"published_at_blog"`
+	PublishedAtLinkedIn   *time.Time `json:"published_at_linkedin" bson:"published_at_linkedin"`
+	PublishedAtNewsletter *time.Time `json:"published_at_newsletter" bson:"published_at_newsletter"`
+	PublishedAtYoutube    *time.Time `json:"published_at_youtube" bson:"published_at_youtube"`
+	Title                 string     `json:"title" bson:"title"`
+	UpdatedAt             *time.Time `json:"updated_at" bson:"updated_at"`
+	UserID                string     `json:"-" bson:"user_id"`
 }
