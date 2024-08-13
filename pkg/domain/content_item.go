@@ -9,6 +9,18 @@ type ContentItemCreateParams struct {
 	Title       string `json:"title"`
 }
 
+// ContentItemUpdateParams is the struct that represents the request body for updating a content item
+type ContentItemUpdateParams struct {
+	Category              *string    `json:"category" bson:"category,omitempty"`
+	Description           *string    `json:"description" bson:"description,omitempty"`
+	PublishedAtBlog       *time.Time `json:"published_at_blog" bson:"published_at_blog,omitempty"`
+	PublishedAtLinkedIn   *time.Time `json:"published_at_linkedin" bson:"published_at_linkedin,omitempty"`
+	PublishedAtNewsletter *time.Time `json:"published_at_newsletter" bson:"published_at_newsletter,omitempty"`
+	PublishedAtYoutube    *time.Time `json:"published_at_youtube" bson:"published_at_youtube,omitempty"`
+	Title                 *string    `json:"title" bson:"title,omitempty"`
+	UpdatedAt             *time.Time `json:"-" bson:"updated_at,omitempty"`
+}
+
 // ContentItem reflects a content item in the system.
 type ContentItem struct {
 	ID                    string     `json:"id" bson:"_id"`

@@ -41,6 +41,7 @@ func main() {
 	r.POST("/content", contentItemHdlr.Create)
 	r.GET("/content/:id", contentItemHdlr.Get)
 	r.DELETE("/content/:id", contentItemHdlr.Delete)
+	r.PUT("/content/:id", contentItemHdlr.Update)
 
 	log.Fatalln(r.Run(fmt.Sprintf(":%s", config.ServerPort))) // listen and serve on 0.0.0.0:8080 by default
 }
