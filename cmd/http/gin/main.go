@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	content_item_hdlr "github.com/jairogloz/go-content-manager/cmd/http/gin/handlers/content_item"
 	"github.com/jairogloz/go-content-manager/pkg/domain"
+	contentItemRepo "github.com/jairogloz/go-content-manager/pkg/repositories/content_item"
+	"github.com/jairogloz/go-content-manager/pkg/services/content_item"
 	"github.com/spf13/viper"
 )
 
@@ -21,7 +23,20 @@ func main() {
 
 	r := gin.Default()
 
-	contentItemHdlr := content_item_hdlr.HttpHandler{Config: config}
+	repo, err := contentItemRepo.NewRepository(config)
+	if err != nil {
+		log.Fatalf("error creating content item repository: %s", err.Error())
+	}
+
+	service, err := content_item.NewService(repo)
+	if err != nil {
+		log.Fatalf("error creating content item service: %s", err.Error())
+	}
+
+	contentItemHdlr, err := content_item_hdlr.NewHttpHandler(service, config)
+	if err != nil {
+		log.Fatalf("error creating content item handler: %s", err.Error())
+	}
 
 	r.POST("/content", contentItemHdlr.Create)
 

@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jairogloz/go-content-manager/pkg/domain"
-	"github.com/jairogloz/go-content-manager/pkg/services/content_item"
 )
 
 func (h *HttpHandler) Create(c *gin.Context) {
@@ -19,7 +18,7 @@ func (h *HttpHandler) Create(c *gin.Context) {
 	}
 
 	// Consumir servicio
-	contentItem, err := content_item.CreateContentItem(contentItemCreateParams, h.Config)
+	contentItem, err := h.Service.Create(contentItemCreateParams)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
