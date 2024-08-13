@@ -16,17 +16,11 @@ func (r *Repository) Insert(contentItem *domain.ContentItem) (insertedID string,
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	insertResult, err := r.coll.InsertOne(ctx, contentItem)
+	_, err = r.coll.InsertOne(ctx, contentItem)
 	if err != nil {
 		log.Println("Failed to insert contentItem to MongoDB: ", err.Error())
 		return "", fmt.Errorf("error inserting contentItem to MongoDB: %w", err)
 	}
 
-	insertedIDObjectID, ok := insertResult.InsertedID.(primitive.ObjectID)
-	if !ok {
-		log.Println("Failed to cast InsertedID to ObjectID")
-		return "", fmt.Errorf("error casting InsertedID to ObjectID")
-	}
-
-	return insertedIDObjectID.Hex(), nil
+	return contentItem.ID, nil
 }
