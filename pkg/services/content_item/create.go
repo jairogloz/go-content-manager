@@ -2,13 +2,13 @@ package content_item
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jairogloz/go-content-manager/pkg/domain"
-	"github.com/jairogloz/go-content-manager/pkg/repositories/content_item"
 )
 
-func CreateContentItem(contentItemCreateParams domain.ContentItemCreateParams, config domain.EnvVars) (contentItem *domain.ContentItem, err error) {
+func (s *Service) Create(contentItemCreateParams domain.ContentItemCreateParams) (contentItem *domain.ContentItem, err error) {
 
 	now := time.Now().UTC()
 	contentItem = &domain.ContentItem{
@@ -19,10 +19,11 @@ func CreateContentItem(contentItemCreateParams domain.ContentItemCreateParams, c
 		UpdatedAt:   &now,
 	}
 
-	err = content_item.InsertContentItem(contentItem, config)
+	contentItemID, err := s.Repo.Insert(contentItem)
 	if err != nil {
 		return nil, fmt.Errorf("error inserting content item: %w", err)
 	}
+	log.Println("Content item inserted with ID: ", contentItemID)
 
 	return contentItem, nil
 }
