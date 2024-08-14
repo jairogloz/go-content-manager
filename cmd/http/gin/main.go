@@ -40,6 +40,7 @@ func main() {
 
 	r.POST("/content", contentItemHdlr.Create)
 	r.GET("/content/:id", contentItemHdlr.Get)
+	r.GET("/content/", contentItemHdlr.List)
 	r.DELETE("/content/:id", contentItemHdlr.Delete)
 	r.PUT("/content/:id", contentItemHdlr.Update)
 
