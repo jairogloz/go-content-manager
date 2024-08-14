@@ -12,7 +12,7 @@ type ContentItemRepository interface {
 }
 
 type ContentItemService interface {
-	Create(contentItemCreateParams domain.ContentItemCreateParams) (contentItem *domain.ContentItem, err error)
+	Create(userID string, contentItemCreateParams domain.ContentItemCreateParams) (contentItem *domain.ContentItem, err error)
 	Get(id string) (contentItem *domain.ContentItem, err error)
 	Delete(id string) error
 	Update(id string, contentItem domain.ContentItemUpdateParams) (updatedCount int, err error)

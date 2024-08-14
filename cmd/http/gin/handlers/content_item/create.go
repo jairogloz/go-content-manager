@@ -17,8 +17,11 @@ func (h *HttpHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// Asumimos que el user.ID es "1"
+	userID := "1"
+
 	// Consumir servicio
-	contentItem, err := h.Service.Create(contentItemCreateParams)
+	contentItem, err := h.Service.Create(userID, contentItemCreateParams)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

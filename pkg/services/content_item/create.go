@@ -8,7 +8,11 @@ import (
 	"github.com/jairogloz/go-content-manager/pkg/domain"
 )
 
-func (s *Service) Create(contentItemCreateParams domain.ContentItemCreateParams) (contentItem *domain.ContentItem, err error) {
+func (s *Service) Create(userID string, contentItemCreateParams domain.ContentItemCreateParams) (contentItem *domain.ContentItem, err error) {
+
+	if userID == "" {
+		return nil, fmt.Errorf("user ID is required to create a content item")
+	}
 
 	now := time.Now().UTC()
 	contentItem = &domain.ContentItem{
@@ -17,6 +21,7 @@ func (s *Service) Create(contentItemCreateParams domain.ContentItemCreateParams)
 		Title:       contentItemCreateParams.Title,
 		CreatedAt:   &now,
 		UpdatedAt:   &now,
+		UserID:      userID,
 	}
 
 	contentItemID, err := s.Repo.Insert(contentItem)
