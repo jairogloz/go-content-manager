@@ -10,14 +10,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (r *Repository) List(userID string, page, limit int) (contentItems []*domain.ContentItem, err error) {
+func (r *Repository) List(userID string, page, limit int, sortByField, sortByOrder string) (contentItems []*domain.ContentItem, err error) {
 
 	// Compute skip out of page and limit
 	skip := (page - 1) * limit
 
+	sortByOrderInt := -1
+	if sortByOrder == "asc" {
+		sortByOrderInt = 1
+	}
+
 	findOptions := options.Find()
 	findOptions.SetSkip(int64(skip))
 	findOptions.SetLimit(int64(limit))
+	findOptions.SetSort(bson.D{{Key: sortByField, Value: sortByOrderInt}})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
