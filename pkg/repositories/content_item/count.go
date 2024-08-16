@@ -14,7 +14,10 @@ func (r *Repository) Count(userID, category string) (count int, err error) {
 
 	filter := bson.M{"user_id": userID}
 	if category != "" {
-		filter["category"] = category
+		filter["category"] = bson.M{
+			"$regex":   category,
+			"$options": "i",
+		}
 	}
 
 	documentCount, err := r.coll.CountDocuments(ctx, filter)

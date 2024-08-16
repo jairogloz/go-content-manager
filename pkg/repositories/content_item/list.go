@@ -30,7 +30,10 @@ func (r *Repository) List(userID string, page, limit int, sortByField, sortByOrd
 
 	filter := bson.M{"user_id": userID}
 	if category != "" {
-		filter["category"] = category
+		filter["category"] = bson.M{
+			"$regex":   category,
+			"$options": "i",
+		}
 	}
 
 	cursor, err := r.coll.Find(ctx, filter, findOptions)

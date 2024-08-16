@@ -44,6 +44,15 @@ func (s *Service) List(userID string, page, limit int, sortBy string, category s
 	if err != nil {
 		return nil, err
 	}
+	if totalCount == 0 {
+		return &domain.ContentItemListResponse{
+			ContentItems: []*domain.ContentItem{},
+			TotalCount:   0,
+			Count:        0,
+			Page:         0,
+			TotalPages:   0,
+		}, nil
+	}
 
 	// Calcualr número total de páginas
 	totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
