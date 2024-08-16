@@ -35,3 +35,12 @@ type ContentItem struct {
 	UpdatedAt             *time.Time `json:"updated_at" bson:"updated_at"`
 	UserID                string     `json:"-" bson:"user_id"`
 }
+
+// ContentItemListResponse is the struct that represents the response body for listing content items
+type ContentItemListResponse struct {
+	ContentItems []*ContentItem `json:"content_items"`
+	TotalCount   int            `json:"total_count"`
+	Count        int            `json:"count"`
+	Page         int            `json:"page"`
+	TotalPages   int            `json:"total_pages"`
+}

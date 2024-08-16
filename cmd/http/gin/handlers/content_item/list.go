@@ -36,12 +36,12 @@ func (h *HttpHandler) List(c *gin.Context) {
 
 	userID := "1"
 
-	contentItems, err := h.Service.List(userID, page, limit, sortBy)
+	response, err := h.Service.List(userID, page, limit, sortBy)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(200, contentItems)
+	c.JSON(200, response)
 
 }
