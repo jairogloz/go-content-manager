@@ -9,8 +9,8 @@ type ContentItemRepository interface {
 	Find(id string) (contentItem *domain.ContentItem, err error)
 	Delete(id string) error
 	Update(id string, contentItem domain.ContentItemUpdateParams) (updatedCount int, err error)
-	List(userID string, page, limit int, sortByField, sortByOrder string) (contentItems []*domain.ContentItem, err error)
-	Count(userID string) (totalCount int, err error)
+	List(userID string, page, limit int, sortByField, sortByOrder, category string) (contentItems []*domain.ContentItem, err error)
+	Count(userID, cateogry string) (totalCount int, err error)
 }
 
 type ContentItemService interface {
@@ -18,5 +18,5 @@ type ContentItemService interface {
 	Get(id string) (contentItem *domain.ContentItem, err error)
 	Delete(id string) error
 	Update(id string, contentItem domain.ContentItemUpdateParams) (updatedCount int, err error)
-	List(userID string, page, limit int, sortBy string) (response *domain.ContentItemListResponse, err error)
+	List(userID string, page, limit int, sortBy string, category string) (response *domain.ContentItemListResponse, err error)
 }

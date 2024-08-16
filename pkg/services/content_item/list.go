@@ -8,7 +8,7 @@ import (
 	"github.com/jairogloz/go-content-manager/pkg/domain"
 )
 
-func (s *Service) List(userID string, page, limit int, sortBy string) (response *domain.ContentItemListResponse, err error) {
+func (s *Service) List(userID string, page, limit int, sortBy string, category string) (response *domain.ContentItemListResponse, err error) {
 
 	if page < 1 {
 		return nil, fmt.Errorf("error listing content items: page must be greater than or equal to 1")
@@ -40,7 +40,7 @@ func (s *Service) List(userID string, page, limit int, sortBy string) (response 
 		}
 	}
 
-	totalCount, err := s.Repo.Count(userID)
+	totalCount, err := s.Repo.Count(userID, category)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (s *Service) List(userID string, page, limit int, sortBy string) (response 
 		page = totalPages
 	}
 
-	contentItems, err := s.Repo.List(userID, page, limit, sortByField, sortByOrder)
+	contentItems, err := s.Repo.List(userID, page, limit, sortByField, sortByOrder, category)
 	if err != nil {
 		return nil, err
 	}

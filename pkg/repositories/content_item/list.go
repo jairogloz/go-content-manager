@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (r *Repository) List(userID string, page, limit int, sortByField, sortByOrder string) (contentItems []*domain.ContentItem, err error) {
+func (r *Repository) List(userID string, page, limit int, sortByField, sortByOrder, category string) (contentItems []*domain.ContentItem, err error) {
 
 	// Compute skip out of page and limit
 	skip := (page - 1) * limit
@@ -28,7 +28,12 @@ func (r *Repository) List(userID string, page, limit int, sortByField, sortByOrd
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	cursor, err := r.coll.Find(ctx, bson.M{"user_id": userID}, findOptions)
+	filter := bson.M{"user_id": userID}
+	if category != "" {
+		filter["category"] = category
+	}
+
+	cursor, err := r.coll.Find(ctx, filter, findOptions)
 	if err != nil {
 		return nil, fmt.Errorf("error listing content items: %w", err)
 	}

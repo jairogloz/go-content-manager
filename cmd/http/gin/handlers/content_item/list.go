@@ -34,9 +34,11 @@ func (h *HttpHandler) List(c *gin.Context) {
 
 	sortBy := c.Query("sort_by")
 
+	category := c.Query("category")
+
 	userID := "1"
 
-	response, err := h.Service.List(userID, page, limit, sortBy)
+	response, err := h.Service.List(userID, page, limit, sortBy, category)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
