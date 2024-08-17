@@ -14,6 +14,15 @@ import (
 
 var config domain.EnvVars
 
+func AuthMiddleware(msg string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Do something
+		fmt.Println(msg)
+
+		c.Next()
+	}
+}
+
 func main() {
 	var err error
 	config, err = LoadConfig()
@@ -22,6 +31,8 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	r.Use(AuthMiddleware("Auth middleware"))
 
 	repo, err := contentItemRepo.NewRepository(config)
 	if err != nil {
