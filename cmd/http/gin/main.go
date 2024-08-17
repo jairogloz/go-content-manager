@@ -8,7 +8,9 @@ import (
 	content_item_hdlr "github.com/jairogloz/go-content-manager/cmd/http/gin/handlers/content_item"
 	"github.com/jairogloz/go-content-manager/pkg/domain"
 	contentItemRepo "github.com/jairogloz/go-content-manager/pkg/repositories/content_item"
+	userRepo "github.com/jairogloz/go-content-manager/pkg/repositories/user"
 	"github.com/jairogloz/go-content-manager/pkg/services/content_item"
+	userService "github.com/jairogloz/go-content-manager/pkg/services/user"
 	"github.com/spf13/viper"
 )
 
@@ -23,7 +25,17 @@ func main() {
 
 	r := gin.Default()
 
-	r.Use(content_item_hdlr.AuthMiddleware())
+	userRepo, err := userRepo.NewRepository(config)
+	if err != nil {
+		log.Fatalf("error creating user repository: %s", err.Error())
+	}
+
+	userService, err := userService.NewService(userRepo)
+	if err != nil {
+		log.Fatalf("error creating user service: %s", err.Error())
+	}
+
+	r.Use(content_item_hdlr.AuthMiddleware(userService))
 
 	repo, err := contentItemRepo.NewRepository(config)
 	if err != nil {

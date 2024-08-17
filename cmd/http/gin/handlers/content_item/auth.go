@@ -5,9 +5,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jairogloz/go-content-manager/pkg/ports"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(userService ports.UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the Authorization header
 		authHeader := c.GetHeader("Authorization")
@@ -27,10 +28,14 @@ func AuthMiddleware() gin.HandlerFunc {
 		// Extract the API key from the header
 		apiKey := strings.TrimPrefix(authHeader, "Bearer ")
 
-		if apiKey != "abc" {
+		user, err := userService.Auth(apiKey)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Ooops! Something went wrong, please try again later"})
+			c.Abort()
+		}
+		if user == nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
 			c.Abort()
-			return
 		}
 
 		c.Next()
