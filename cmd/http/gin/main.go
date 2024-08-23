@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	content_item_hdlr "github.com/jairogloz/go-content-manager/cmd/http/gin/handlers/content_item"
@@ -11,7 +12,6 @@ import (
 	userRepo "github.com/jairogloz/go-content-manager/pkg/repositories/user"
 	"github.com/jairogloz/go-content-manager/pkg/services/content_item"
 	userService "github.com/jairogloz/go-content-manager/pkg/services/user"
-	"github.com/spf13/viper"
 )
 
 var config domain.EnvVars
@@ -63,21 +63,27 @@ func main() {
 
 func LoadConfig() (config domain.EnvVars, err error) {
 
-	viper.AddConfigPath("../../../.")
-	viper.AddConfigPath(".")
-	viper.SetConfigType("env")
-	viper.SetConfigName("app")
+	config.MongoDBCollNameContentItems = os.Getenv("MONGO_DB_COLL_NAME_CONTENT_ITEMS")
+	config.MongoDBCollNameUsers = os.Getenv("MONGO_DB_COLL_NAME_USERS")
+	config.MongoDBName = os.Getenv("MONGO_DB_NAME")
+	config.MongoDBURI = os.Getenv("MONGO_DB_URI")
+	config.ServerPort = os.Getenv("SERVER_PORT")
 
-	err = viper.ReadInConfig()
-	if err != nil {
-		return config, fmt.Errorf("error reading config file: %w", err)
+	if config.MongoDBCollNameContentItems == "" {
+		return config, fmt.Errorf("MONGO_DB_COLL_NAME_CONTENT_ITEMS is required")
 	}
-
-	err = viper.Unmarshal(&config)
-	if err != nil {
-		return config, fmt.Errorf("error unmarshalling config: %w", err)
+	if config.MongoDBCollNameUsers == "" {
+		return config, fmt.Errorf("MONGO_DB_COLL_NAME_USERS is required")
 	}
-
+	if config.MongoDBName == "" {
+		return config, fmt.Errorf("MONGODB_DB_NAME is required")
+	}
+	if config.MongoDBURI == "" {
+		return config, fmt.Errorf("MONGO_DB_URI is required")
+	}
+	if config.ServerPort == "" {
+		return config, fmt.Errorf("SERVER_PORT is required")
+	}
 	return config, nil
 
 }
