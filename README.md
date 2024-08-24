@@ -15,3 +15,17 @@ cp example.env .env
 ```bash
 export $(cat .env | xargs)
 ```
+
+## How to run with Docker
+
+1. Build your Docker image with:
+
+```bash
+docker build -t content-manager .
+```
+
+2. Run your container with:
+
+```bash
+docker run -d --name content-manager-container --env-file .env -p 8080:8080 content-manager
+```
